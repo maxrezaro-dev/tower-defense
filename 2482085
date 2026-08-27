@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+
+body {
+    margin: 0;
+    background: #222;
+    font-family: Arial;
+    overflow: hidden;
+}
+
+/* صفحه بازی */
+#game {
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+    background: #4caf50;
+}
+
+/* مسیر دشمن */
+.path {
+    position: absolute;
+    background: #d2b48c;
+    width: 100%;
+    height: 80px;
+    top: 40%;
+}
+
+/* دشمن */
+.enemy {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    background: red;
+    border-radius: 50%;
+    top: calc(40% + 20px);
+}
+
+/* نوار جان دشمن */
+.health-bar {
+    position: absolute;
+    width: 40px;
+    height: 6px;
+    background: red;
+    top: -12px;
+}
+
+/* جان سبز دشمن */
+.health {
+    width: 100%;
+    height: 100%;
+    background: lime;
+}
+
+/* جان بازیکن */
+#playerHealth {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    color: white;
+    font-size: 24px;
+    font-weight: bold;
+    z-index: 10;
+}
+
+</style>
+</head>
+
+<body>
+
+<div id="game"></div>
+<div id="playerHealth">❤️ جان: 10</div>
+
+<script>
+
+const game = document.getElementById("game");
+
+/* ساخت دشمن */
+const enemy = document.createElement("div");
+enemy.className = "enemy";
+
+/* نوار جان */
+const healthBar = document.createElement("div");
+healthBar.className = "health-bar";
+
+const health = document.createElement("div");
+health.className = "health";
+
+healthBar.appendChild(health);
+enemy.appendChild(healthBar);
+
+game.appendChild(enemy);
+
+/* جان بازیکن */
+let playerHp = 10;
+
+const playerHealth = document.getElementById("playerHealth");
+
+/* حرکت دشمن */
+let position = 0;
+
+function moveEnemy() {
+
+    position += 1;
+
+    enemy.style.left = position + "px";
+
+    if (position < window.innerWidth - 40) {
+
+        requestAnimationFrame(moveEnemy);
+
+    } else {
+
+        playerHp -= 1;
+
+        playerHealth.innerText = "❤️ جان: " + playerHp;
+
+        enemy.remove();
+
+    }
+
+}
+
+moveEnemy();
+
+</script>
+
+</body>
+</html>
