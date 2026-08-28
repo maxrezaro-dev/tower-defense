@@ -1,0 +1,3007 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: #222;
+    font-family: Arial;
+    overflow: hidden;
+    touch-action: none;
+}
+
+#game {
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+    background: #4caf50;
+    overflow: hidden;
+}
+
+#world {
+    position: absolute;
+    width: 2000px;
+    height: 1000px;
+    left: 0;
+    top: 0;
+    background: #4caf50;
+}
+
+/* مسیر */
+
+.path {
+    position: absolute;
+    width: 2000px;
+    height: 80px;
+    left: 0;
+    top: 400px;
+    background: #d2b48c;
+}
+
+
+/* ================= دشمن ================= */
+
+.enemy {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    background: red;
+    border-radius: 50%;
+    z-index: 5;
+}
+
+.health-bar {
+    position: absolute;
+    width: 40px;
+    height: 6px;
+    background: #550000;
+    top: -12px;
+    left: 0;
+}
+
+.health {
+    width: 100%;
+    height: 100%;
+    background: lime;
+}
+
+
+/* ================= باس ================= */
+
+.boss {
+    position: absolute;
+    width: 110px;
+    height: 110px;
+    background: #5b008a;
+    border: 6px solid gold;
+    border-radius: 25%;
+    z-index: 6;
+}
+
+.boss .health-bar {
+    width: 140px;
+    height: 12px;
+    left: -15px;
+    top: -25px;
+}
+
+.boss .boss-eye {
+    color: gold;
+    font-size: 55px;
+    text-align: center;
+    line-height: 100px;
+}
+
+
+/* ================= HUD ================= */
+
+#playerHealth {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    color: white;
+    font-size: 24px;
+    font-weight: bold;
+    z-index: 100;
+}
+
+#moneyInfo {
+    position: fixed;
+    top: 45px;
+    left: 10px;
+    color: gold;
+    font-size: 22px;
+    font-weight: bold;
+    z-index: 100;
+}
+
+#waveInfo {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    color: white;
+    font-size: 22px;
+    font-weight: bold;
+    z-index: 100;
+}
+
+#enemyCount {
+    position: fixed;
+    top: 42px;
+    right: 10px;
+    color: white;
+    font-size: 20px;
+    font-weight: bold;
+    z-index: 100;
+}
+
+#countdown {
+    position: fixed;
+    top: 75px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: white;
+    font-size: 28px;
+    font-weight: bold;
+    z-index: 100;
+    text-shadow: 2px 2px 4px black;
+}
+
+
+/* ================= سرعت ================= */
+
+#speedButton {
+    position: fixed;
+    top: 100px;
+    right: 10px;
+    z-index: 100;
+    padding: 8px 14px;
+    font-size: 18px;
+    border: none;
+    border-radius: 8px;
+}
+
+
+/* ================= تاور ================= */
+
+.tower-slot {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    border: 3px solid white;
+    border-radius: 50%;
+    z-index: 4;
+    transform: translate(-50%, -50%);
+}
+
+.tower {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    border-radius: 10px;
+    z-index: 10;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.tower.level1 {
+    background: blue;
+    border: 4px solid white;
+}
+
+.tower.level2 {
+    background: green;
+    border: 4px solid white;
+}
+
+.tower.level3 {
+    background: black;
+    border: 4px solid gold;
+}
+
+.tower-symbol {
+    color: white;
+    font-size: 32px;
+    font-weight: bold;
+    pointer-events: none;
+}
+
+.tower.level3 .tower-symbol {
+    color: gold;
+}
+
+.tower-range {
+    position: absolute;
+    border: 2px solid rgba(255,255,255,0.6);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 2;
+    display: none;
+}
+
+.tower.selected .tower-range {
+    display: block;
+}
+
+
+/* ================= تیر ================= */
+
+.bullet {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    background: yellow;
+    border-radius: 50%;
+    z-index: 20;
+}
+
+
+/* ================= دکمه ساخت تاور ================= */
+
+#towerButton {
+    position: fixed;
+    bottom: 55px;
+    left: 20px;
+    z-index: 100;
+    padding: 12px 18px;
+    font-size: 18px;
+    background: white;
+    border: none;
+    border-radius: 10px;
+}
+
+#towerMessage {
+    position: fixed;
+    bottom: 15px;
+    left: 20px;
+    color: white;
+    font-size: 15px;
+    font-weight: bold;
+    z-index: 100;
+}
+
+
+/* ================= پنل تاور ================= */
+
+#towerPanel {
+    position: fixed;
+    right: 10px;
+    bottom: 20px;
+    width: 190px;
+    padding: 12px;
+    background: rgba(0,0,0,0.75);
+    color: white;
+    border-radius: 10px;
+    z-index: 150;
+    display: none;
+    font-size: 16px;
+}
+
+#upgradeButton {
+    width: 100%;
+    margin-top: 10px;
+    padding: 10px;
+    font-size: 16px;
+    border: none;
+    border-radius: 8px;
+    background: gold;
+}
+
+
+/* ================= پنل دشمن ================= */
+
+#enemyPanel {
+    position: fixed;
+    right: 10px;
+    top: 140px;
+    width: 200px;
+    padding: 12px;
+    background: rgba(0,0,0,0.8);
+    color: white;
+    border-radius: 10px;
+    z-index: 150;
+    display: none;
+    font-size: 17px;
+}
+
+
+/* ================= باس ================= */
+
+#bossBar {
+    position: fixed;
+    top: 130px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 300px;
+    display: none;
+    z-index: 120;
+}
+
+#bossTitle {
+    color: gold;
+    text-align: center;
+    font-size: 22px;
+    font-weight: bold;
+}
+
+#bossHpBar {
+    width: 100%;
+    height: 18px;
+    background: #300030;
+    border: 2px solid gold;
+}
+
+#bossHp {
+    width: 100%;
+    height: 100%;
+    background: red;
+}
+
+
+/* ================= برد و باخت ================= */
+
+#loseScreen,
+#winScreen {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.75);
+
+    display: none;
+
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+
+    z-index: 300;
+}
+
+#loseText,
+#winText {
+    color: white;
+    font-size: 60px;
+    font-weight: bold;
+    text-align: center;
+}
+
+#restartButton,
+#restartWinButton {
+    margin-top: 20px;
+    padding: 12px 30px;
+    font-size: 22px;
+    border: none;
+    border-radius: 10px;
+}
+
+</style>
+</head>
+
+
+<body>
+
+<div id="game">
+
+    <div id="world">
+
+        <div class="path"></div>
+
+    </div>
+
+</div>
+
+
+<div id="playerHealth">
+    ❤️ جان: 10
+</div>
+
+
+<div id="moneyInfo">
+    🪙 50
+</div>
+
+
+<div id="waveInfo">
+    🌊 Wave 1 / 10
+</div>
+
+
+<div id="enemyCount">
+    👹 باقی‌مانده: 0
+</div>
+
+
+<div id="countdown">
+    اول یک تاور بساز 🗼
+</div>
+
+
+<button id="speedButton">
+    ⏩ 1x
+</button>
+
+
+<button id="towerButton">
+    🗼 ساخت تاور - 50 🪙
+</button>
+
+
+<div id="towerMessage"></div>
+
+
+<!-- پنل تاور -->
+
+<div id="towerPanel">
+
+    <div id="towerLevel">
+        Level: 1
+    </div>
+
+    <div id="towerDamage">
+        Damage: 10
+    </div>
+
+    <div id="towerRange">
+        Range: 220
+    </div>
+
+    <div id="towerSpeed">
+        Fire Rate: 1.4s
+    </div>
+
+    <button id="upgradeButton">
+        ⬆️ Upgrade
+    </button>
+
+</div>
+
+
+<!-- پنل دشمن -->
+
+<div id="enemyPanel">
+
+    <div id="enemyName">
+        👹 Enemy
+    </div>
+
+    <div id="enemyHp">
+        HP: 0 / 0
+    </div>
+
+    <div id="enemyDamage">
+        Damage to Player: 1 ❤️
+    </div>
+
+</div>
+
+
+<!-- باس -->
+
+<div id="bossBar">
+
+    <div id="bossTitle">
+        👑 BOSS
+    </div>
+
+    <div id="bossHpBar">
+
+        <div id="bossHp"></div>
+
+    </div>
+
+</div>
+
+
+<!-- باخت -->
+
+<div id="loseScreen">
+
+    <div id="loseText">
+        YOU LOSE 💀
+    </div>
+
+    <button id="restartButton">
+        دوباره بازی کن
+    </button>
+
+</div>
+
+
+<!-- برد -->
+
+<div id="winScreen">
+
+    <div id="winText">
+        YOU WIN! 🏆🔥
+    </div>
+
+    <button id="restartWinButton">
+        دوباره بازی کن
+    </button>
+
+</div>
+
+
+<script>
+
+
+/* =====================================================
+   عناصر صفحه
+===================================================== */
+
+const game =
+    document.getElementById("game");
+
+const world =
+    document.getElementById("world");
+
+const playerHealth =
+    document.getElementById("playerHealth");
+
+const moneyInfo =
+    document.getElementById("moneyInfo");
+
+const waveInfo =
+    document.getElementById("waveInfo");
+
+const enemyCount =
+    document.getElementById("enemyCount");
+
+const countdown =
+    document.getElementById("countdown");
+
+const towerButton =
+    document.getElementById("towerButton");
+
+const towerMessage =
+    document.getElementById("towerMessage");
+
+const speedButton =
+    document.getElementById("speedButton");
+
+const towerPanel =
+    document.getElementById("towerPanel");
+
+const towerLevel =
+    document.getElementById("towerLevel");
+
+const towerDamage =
+    document.getElementById("towerDamage");
+
+const towerRange =
+    document.getElementById("towerRange");
+
+const towerSpeed =
+    document.getElementById("towerSpeed");
+
+const upgradeButton =
+    document.getElementById("upgradeButton");
+
+const enemyPanel =
+    document.getElementById("enemyPanel");
+
+const enemyName =
+    document.getElementById("enemyName");
+
+const enemyHp =
+    document.getElementById("enemyHp");
+
+const enemyDamage =
+    document.getElementById("enemyDamage");
+
+const bossBar =
+    document.getElementById("bossBar");
+
+const bossHp =
+    document.getElementById("bossHp");
+
+const loseScreen =
+    document.getElementById("loseScreen");
+
+const winScreen =
+    document.getElementById("winScreen");
+
+
+/* =====================================================
+   تنظیمات
+===================================================== */
+
+const WORLD_WIDTH = 2000;
+
+const MAX_TOWERS = 12;
+
+const TOWER_COST = 50;
+
+const UPGRADE_LEVEL_2_COST = 60;
+
+const UPGRADE_LEVEL_3_COST = 100;
+
+const ENEMY_REWARD = 15;
+
+const MAX_WAVES = 10;
+
+
+/* =====================================================
+   وضعیت بازی
+===================================================== */
+
+let playerHp = 10;
+
+let money = 50;
+
+let gameOver = false;
+
+let gameWon = false;
+
+let enemies = [];
+
+let towers = [];
+
+let towerSlots = [];
+
+let selectedTower = null;
+
+let selectedEnemy = null;
+
+let enemyId = 0;
+
+let cameraX = 0;
+
+let placingTower = false;
+
+let currentWave = 1;
+
+let enemiesToSpawn = 0;
+
+let enemiesSpawned = 0;
+
+/*
+تعداد دشمن‌هایی که هنوز باید
+در کل Wave کشته یا رد شوند
+*/
+
+let enemiesRemainingInWave = 0;
+
+let waveActive = false;
+
+let waveStarted = false;
+
+let countdownRunning = false;
+
+let gameSpeed = 1;
+
+let boss = null;
+
+
+/* =====================================================
+   تعداد دشمن Wave
+===================================================== */
+
+function getEnemyCount(wave) {
+
+    if (wave === 1) return 5;
+
+    if (wave === 2) return 10;
+
+    if (wave === 3) return 20;
+
+    if (wave === 4) return 30;
+
+    if (wave === 5) return 50;
+
+    if (wave === 6) return 75;
+
+    if (wave === 7) return 100;
+
+    if (wave === 8) return 125;
+
+    if (wave === 9) return 150;
+
+    return 0;
+}
+
+
+/* =====================================================
+   HP دشمن
+===================================================== */
+
+function getEnemyHp(wave) {
+
+    if (wave <= 2)
+        return 40;
+
+    if (wave <= 4)
+        return 50;
+
+    if (wave <= 6)
+        return 60;
+
+    if (wave <= 8)
+        return 70;
+
+    if (wave === 9)
+        return 80;
+
+    return 100;
+}
+
+
+/* =====================================================
+   سرعت دشمن
+===================================================== */
+
+function getEnemySpeed(wave) {
+
+    if (wave === 1)
+        return 0.45;
+
+    return 1;
+}
+
+
+/* =====================================================
+   شمارنده واقعی Wave
+===================================================== */
+
+function updateEnemyCount() {
+
+    /*
+    اینجا دیگر enemies.length استفاده نمی‌کنیم.
+
+    مقدار نشان داده شده یعنی:
+    چند دشمن از کل Wave هنوز
+    کشته نشده یا از مسیر خارج نشده.
+    */
+
+    if (currentWave === 10) {
+
+        if (boss) {
+
+            enemyCount.innerText =
+                "👑 باس باقی‌مانده: 1";
+
+        }
+
+        else {
+
+            enemyCount.innerText =
+                "👑 باس باقی‌مانده: 0";
+
+        }
+
+        return;
+    }
+
+
+    enemyCount.innerText =
+        "👹 باقی‌مانده: " +
+        enemiesRemainingInWave;
+}
+
+
+/* =====================================================
+   ساخت جای تاورها
+===================================================== */
+
+function createTowerSlots() {
+
+    const startX = 300;
+
+    const spacing = 300;
+
+    const topY = 350;
+
+    const bottomY = 530;
+
+
+    for (
+        let i = 0;
+        i < 5;
+        i++
+    ) {
+
+        createTowerSlot(
+            startX + i * spacing,
+            topY
+        );
+
+        createTowerSlot(
+            startX + i * spacing,
+            bottomY
+        );
+    }
+
+
+    createTowerSlot(
+        1800,
+        350
+    );
+
+
+    createTowerSlot(
+        1800,
+        530
+    );
+}
+
+
+function createTowerSlot(x, y) {
+
+    const slot =
+        document.createElement("div");
+
+    slot.className =
+        "tower-slot";
+
+    slot.style.left =
+        x + "px";
+
+    slot.style.top =
+        y + "px";
+
+
+    world.appendChild(slot);
+
+
+    towerSlots.push({
+
+        element: slot,
+
+        x: x,
+
+        y: y,
+
+        occupied: false
+
+    });
+}
+
+
+/* =====================================================
+   پول
+===================================================== */
+
+function updateMoney() {
+
+    moneyInfo.innerText =
+        "🪙 " + money;
+}
+
+
+/* =====================================================
+   ساخت تاور
+===================================================== */
+
+function createTower(slot) {
+
+    if (
+        towers.length >=
+        MAX_TOWERS
+    ) {
+
+        towerMessage.innerText =
+            "اوسکل بیشتر از 12 تا میخوای بزاری؟ بیلاخ👍";
+
+        return false;
+    }
+
+
+    if (
+        money < TOWER_COST
+    ) {
+
+        towerMessage.innerText =
+            "سکه کافی نیست 🫠";
+
+        return false;
+    }
+
+
+    money -=
+        TOWER_COST;
+
+
+    updateMoney();
+
+
+    const tower =
+        document.createElement("div");
+
+    tower.className =
+        "tower level1";
+
+
+    tower.style.left =
+        slot.x - 30 + "px";
+
+    tower.style.top =
+        slot.y - 30 + "px";
+
+
+    const symbol =
+        document.createElement("div");
+
+    symbol.className =
+        "tower-symbol";
+
+    symbol.innerText =
+        "●";
+
+
+    tower.appendChild(symbol);
+
+
+    const range =
+        document.createElement("div");
+
+    range.className =
+        "tower-range";
+
+
+    tower.appendChild(range);
+
+
+    world.appendChild(tower);
+
+
+    slot.occupied =
+        true;
+
+    slot.element.style.display =
+        "none";
+
+
+    const towerData = {
+
+        element: tower,
+
+        symbol: symbol,
+
+        rangeElement: range,
+
+        x: slot.x - 30,
+
+        y: slot.y - 30,
+
+        slot: slot,
+
+        target: null,
+
+        level: 1,
+
+        damage: 10,
+
+        range: 220,
+
+        fireRate: 1400,
+
+        lastShot: 0
+
+    };
+
+
+    towers.push(
+        towerData
+    );
+
+
+    updateTowerRange(
+        towerData
+    );
+
+
+    tower.addEventListener(
+        "click",
+        function(event) {
+
+            event.stopPropagation();
+
+            selectTower(
+                towerData
+            );
+
+        }
+    );
+
+
+    towerMessage.innerText =
+        "";
+
+
+    if (
+        !waveStarted &&
+        !countdownRunning
+    ) {
+
+        startCountdown();
+    }
+
+
+    return true;
+}
+
+
+/* =====================================================
+   رنج تاور
+===================================================== */
+
+function updateTowerRange(tower) {
+
+    tower.rangeElement.style.width =
+        tower.range * 2 + "px";
+
+    tower.rangeElement.style.height =
+        tower.range * 2 + "px";
+
+
+    tower.rangeElement.style.left =
+        30 - tower.range + "px";
+
+    tower.rangeElement.style.top =
+        30 - tower.range + "px";
+}
+
+
+/* =====================================================
+   انتخاب تاور
+===================================================== */
+
+function selectTower(tower) {
+
+    closeEnemyPanel();
+
+
+    if (selectedTower) {
+
+        selectedTower.element
+            .classList.remove(
+                "selected"
+            );
+    }
+
+
+    selectedTower =
+        tower;
+
+
+    tower.element.classList.add(
+        "selected"
+    );
+
+
+    towerPanel.style.display =
+        "block";
+
+
+    updateTowerPanel();
+}
+
+
+function closeTowerPanel() {
+
+    if (selectedTower) {
+
+        selectedTower.element
+            .classList.remove(
+                "selected"
+            );
+    }
+
+
+    selectedTower =
+        null;
+
+
+    towerPanel.style.display =
+        "none";
+}
+
+
+/* =====================================================
+   پنل تاور
+===================================================== */
+
+function updateTowerPanel() {
+
+    if (!selectedTower)
+        return;
+
+
+    towerLevel.innerText =
+        "Level: " +
+        selectedTower.level;
+
+
+    towerDamage.innerText =
+        "Damage: " +
+        selectedTower.damage;
+
+
+    towerRange.innerText =
+        "Range: " +
+        selectedTower.range;
+
+
+    towerSpeed.innerText =
+        "Fire Rate: " +
+        (
+            selectedTower.fireRate /
+            1000
+        ).toFixed(1) +
+        "s";
+
+
+    if (
+        selectedTower.level === 1
+    ) {
+
+        upgradeButton.innerText =
+            "⬆️ Level 2 - 60 🪙";
+
+        upgradeButton.disabled =
+            false;
+
+    }
+
+    else if (
+        selectedTower.level === 2
+    ) {
+
+        upgradeButton.innerText =
+            "⬆️ Level 3 - 100 🪙";
+
+        upgradeButton.disabled =
+            false;
+
+    }
+
+    else {
+
+        upgradeButton.innerText =
+            "MAX LEVEL";
+
+        upgradeButton.disabled =
+            true;
+    }
+}
+
+
+/* =====================================================
+   ارتقای تاور
+===================================================== */
+
+upgradeButton.addEventListener(
+    "click",
+    function(event) {
+
+        event.stopPropagation();
+
+
+        if (
+            !selectedTower ||
+            selectedTower.level >= 3
+        )
+            return;
+
+
+        const cost =
+            selectedTower.level === 1
+            ? UPGRADE_LEVEL_2_COST
+            : UPGRADE_LEVEL_3_COST;
+
+
+        if (
+            money < cost
+        )
+            return;
+
+
+        money -= cost;
+
+        updateMoney();
+
+
+        selectedTower.level++;
+
+
+        if (
+            selectedTower.level === 2
+        ) {
+
+            selectedTower.damage =
+                15;
+
+            selectedTower.range =
+                260;
+
+            selectedTower.fireRate =
+                1100;
+
+
+            selectedTower.element.className =
+                "tower level2 selected";
+
+
+            selectedTower.symbol.innerText =
+                "♥";
+        }
+
+
+        if (
+            selectedTower.level === 3
+        ) {
+
+            selectedTower.damage =
+                20;
+
+            selectedTower.range =
+                300;
+
+            selectedTower.fireRate =
+                800;
+
+
+            selectedTower.element.className =
+                "tower level3 selected";
+
+
+            selectedTower.symbol.innerText =
+                "✕";
+        }
+
+
+        updateTowerRange(
+            selectedTower
+        );
+
+
+        updateTowerPanel();
+
+    }
+);
+
+
+/* =====================================================
+   ساخت دشمن
+===================================================== */
+
+function createEnemy() {
+
+    if (
+        gameOver ||
+        gameWon
+    )
+        return;
+
+
+    const enemy =
+        document.createElement("div");
+
+    enemy.className =
+        "enemy";
+
+
+    enemy.style.left =
+        "-40px";
+
+
+    enemy.style.top =
+        "420px";
+
+
+    const healthBar =
+        document.createElement("div");
+
+    healthBar.className =
+        "health-bar";
+
+
+    const health =
+        document.createElement("div");
+
+    health.className =
+        "health";
+
+
+    healthBar.appendChild(
+        health
+    );
+
+
+    enemy.appendChild(
+        healthBar
+    );
+
+
+    world.appendChild(
+        enemy
+    );
+
+
+    const hp =
+        getEnemyHp(
+            currentWave
+        );
+
+
+    const data = {
+
+        id: enemyId++,
+
+        element: enemy,
+
+        healthElement: health,
+
+        maxHp: hp,
+
+        hp: hp,
+
+        x: -40,
+
+        y: 420,
+
+        speed:
+            getEnemySpeed(
+                currentWave
+            ),
+
+        damageToPlayer: 1
+
+    };
+
+
+    enemies.push(
+        data
+    );
+
+
+    enemy.addEventListener(
+        "click",
+        function(event) {
+
+            event.stopPropagation();
+
+            selectEnemy(data);
+
+        }
+    );
+
+
+    updateEnemyCount();
+}
+
+
+/* =====================================================
+   حرکت دشمن
+===================================================== */
+
+function moveEnemies() {
+
+    if (
+        gameOver ||
+        gameWon
+    )
+        return;
+
+
+    for (
+        let i =
+            enemies.length - 1;
+        i >= 0;
+        i--
+    ) {
+
+        const enemy =
+            enemies[i];
+
+
+        enemy.x +=
+            enemy.speed *
+            gameSpeed;
+
+
+        enemy.element.style.left =
+            enemy.x + "px";
+
+
+        /*
+        اگر این دشمن انتخاب شده،
+        پنلش هر فریم آپدیت می‌شود.
+        */
+
+        if (
+            selectedEnemy === enemy
+        ) {
+
+            updateEnemyPanel();
+        }
+
+
+        if (
+            enemy.x >=
+            WORLD_WIDTH
+        ) {
+
+            playerHp -=
+                enemy.damageToPlayer;
+
+
+            playerHealth.innerText =
+                "❤️ جان: " +
+                playerHp;
+
+
+            removeEnemy(
+                enemy,
+                false,
+                true
+            );
+
+
+            if (
+                playerHp <= 0
+            ) {
+
+                loseGame();
+
+                return;
+            }
+        }
+    }
+
+
+    requestAnimationFrame(
+        moveEnemies
+    );
+}
+
+
+/* =====================================================
+   حذف دشمن
+===================================================== */
+
+function removeEnemy(
+    enemy,
+    killed,
+    reachedEnd
+) {
+
+    if (
+        selectedEnemy === enemy
+    ) {
+
+        closeEnemyPanel();
+    }
+
+
+    if (
+        enemy.element.parentNode
+    ) {
+
+        enemy.element.remove();
+    }
+
+
+    const index =
+        enemies.indexOf(enemy);
+
+
+    if (
+        index !== -1
+    ) {
+
+        enemies.splice(
+            index,
+            1
+        );
+    }
+
+
+    /*
+    اگر دشمن کشته شود:
+    پول می‌دهد
+    */
+
+    if (killed) {
+
+        money +=
+            ENEMY_REWARD;
+
+        updateMoney();
+    }
+
+
+    /*
+    چه کشته شود چه به آخر مسیر برسد،
+    از تعداد کل باقی‌مانده کم می‌شود.
+    */
+
+    if (
+        enemiesRemainingInWave > 0
+    ) {
+
+        enemiesRemainingInWave--;
+    }
+
+
+    /*
+    اگر تاور روی این دشمن قفل بود،
+    هدفش آزاد می‌شود.
+    */
+
+    for (
+        const tower of towers
+    ) {
+
+        if (
+            tower.target === enemy
+        ) {
+
+            tower.target =
+                null;
+        }
+    }
+
+
+    updateEnemyCount();
+}
+
+
+/* =====================================================
+   انتخاب دشمن
+===================================================== */
+
+function selectEnemy(enemy) {
+
+    closeTowerPanel();
+
+
+    selectedEnemy =
+        enemy;
+
+
+    enemyPanel.style.display =
+        "block";
+
+
+    updateEnemyPanel();
+}
+
+
+/* =====================================================
+   آپدیت زنده پنل دشمن
+===================================================== */
+
+function updateEnemyPanel() {
+
+    if (!selectedEnemy)
+        return;
+
+
+    /*
+    اگر باس باشد
+    */
+
+    if (
+        selectedEnemy === boss
+    ) {
+
+        enemyName.innerText =
+            "👑 BOSS";
+
+
+        enemyHp.innerText =
+            "HP: " +
+            Math.ceil(
+                boss.hp
+            ) +
+            " / " +
+            boss.maxHp;
+
+
+        enemyDamage.innerText =
+            "Damage to Player: " +
+            boss.damageToPlayer +
+            " ❤️";
+
+
+        return;
+    }
+
+
+    /*
+    دشمن معمولی
+    */
+
+    enemyName.innerText =
+        "👹 Enemy";
+
+
+    enemyHp.innerText =
+        "HP: " +
+        Math.ceil(
+            selectedEnemy.hp
+        ) +
+        " / " +
+        selectedEnemy.maxHp;
+
+
+    enemyDamage.innerText =
+        "Damage to Player: " +
+        selectedEnemy.damageToPlayer +
+        " ❤️";
+}
+
+
+function closeEnemyPanel() {
+
+    selectedEnemy =
+        null;
+
+
+    enemyPanel.style.display =
+        "none";
+}
+
+
+/* =====================================================
+   پیدا کردن هدف تاور
+===================================================== */
+
+function findTarget(tower) {
+
+    /*
+    اگر تاور قبلاً هدف دارد،
+    تا وقتی زنده و داخل رنج است
+    هدفش را عوض نمی‌کند.
+    */
+
+    if (
+        tower.target &&
+        enemies.includes(
+            tower.target
+        ) &&
+        tower.target.hp > 0
+    ) {
+
+        const dx =
+            tower.target.x + 20 -
+            (tower.x + 30);
+
+
+        const dy =
+            tower.target.y + 20 -
+            (tower.y + 30);
+
+
+        const distance =
+            Math.sqrt(
+                dx * dx +
+                dy * dy
+            );
+
+
+        if (
+            distance <=
+            tower.range
+        ) {
+
+            return;
+        }
+    }
+
+
+    tower.target =
+        null;
+
+
+    let closest =
+        null;
+
+
+    let closestDistance =
+        Infinity;
+
+
+    for (
+        const enemy of enemies
+    ) {
+
+        const dx =
+            enemy.x + 20 -
+            (tower.x + 30);
+
+
+        const dy =
+            enemy.y + 20 -
+            (tower.y + 30);
+
+
+        const distance =
+            Math.sqrt(
+                dx * dx +
+                dy * dy
+            );
+
+
+        if (
+            distance <= tower.range &&
+            distance < closestDistance
+        ) {
+
+            closestDistance =
+                distance;
+
+
+            closest =
+                enemy;
+        }
+    }
+
+
+    tower.target =
+        closest;
+}
+
+
+/* =====================================================
+   آپدیت تاورها
+===================================================== */
+
+function updateTowers() {
+
+    if (
+        gameOver ||
+        gameWon
+    )
+        return;
+
+
+    const now =
+        Date.now();
+
+
+    for (
+        const tower of towers
+    ) {
+
+        findTarget(tower);
+
+
+        /*
+        Wave 10:
+        فقط باس وجود دارد.
+        */
+
+        if (
+            currentWave === 10 &&
+            boss
+        ) {
+
+            const dx =
+                boss.x + 55 -
+                (tower.x + 30);
+
+
+            const dy =
+                boss.y + 55 -
+                (tower.y + 30);
+
+
+            const distance =
+                Math.sqrt(
+                    dx * dx +
+                    dy * dy
+                );
+
+
+            if (
+                distance <=
+                tower.range
+            ) {
+
+                tower.target =
+                    boss;
+            }
+        }
+
+
+        if (
+            !tower.target
+        )
+            continue;
+
+
+        if (
+            now -
+            tower.lastShot >=
+            tower.fireRate /
+            gameSpeed
+        ) {
+
+            shootTower(
+                tower,
+                tower.target
+            );
+
+
+            tower.lastShot =
+                now;
+        }
+    }
+
+
+    requestAnimationFrame(
+        updateTowers
+    );
+}
+
+
+/* =====================================================
+   شلیک
+===================================================== */
+
+function shootTower(
+    tower,
+    target
+) {
+
+    const bullet =
+        document.createElement("div");
+
+
+    bullet.className =
+        "bullet";
+
+
+    let bulletX =
+        tower.x + 30;
+
+
+    let bulletY =
+        tower.y + 30;
+
+
+    bullet.style.left =
+        bulletX + "px";
+
+
+    bullet.style.top =
+        bulletY + "px";
+
+
+    world.appendChild(
+        bullet
+    );
+
+
+    function moveBullet() {
+
+        if (
+            gameOver ||
+            gameWon
+        ) {
+
+            bullet.remove();
+
+            return;
+        }
+
+
+        if (
+            !enemies.includes(target) &&
+            target !== boss
+        ) {
+
+            bullet.remove();
+
+            return;
+        }
+
+
+        const targetX =
+            target.x +
+            (
+                target === boss
+                ? 55
+                : 20
+            );
+
+
+        const targetY =
+            target.y +
+            (
+                target === boss
+                ? 55
+                : 20
+            );
+
+
+        const dx =
+            targetX -
+            bulletX;
+
+
+        const dy =
+            targetY -
+            bulletY;
+
+
+        const distance =
+            Math.sqrt(
+                dx * dx +
+                dy * dy
+            );
+
+
+        if (
+            distance <= 20
+        ) {
+
+            target.hp -=
+                tower.damage;
+
+
+            target.hp =
+                Math.max(
+                    0,
+                    target.hp
+                );
+
+
+            /*
+            ============================
+            باس
+            ============================
+            */
+
+            if (
+                target === boss
+            ) {
+
+                bossHp.style.width =
+                    (
+                        target.hp /
+                        target.maxHp *
+                        100
+                    ) + "%";
+
+
+                /*
+                پنل باس همین لحظه
+                آپدیت می‌شود
+                */
+
+                if (
+                    selectedEnemy === boss
+                ) {
+
+                    updateEnemyPanel();
+                }
+
+
+                if (
+                    target.hp <= 0
+                ) {
+
+                    killBoss();
+                }
+
+            }
+
+            /*
+            ============================
+            دشمن معمولی
+            ============================
+            */
+
+            else {
+
+                target.healthElement.style.width =
+                    (
+                        target.hp /
+                        target.maxHp *
+                        100
+                    ) + "%";
+
+
+                /*
+                پنل دشمن هم زنده آپدیت می‌شود
+                */
+
+                if (
+                    selectedEnemy === target
+                ) {
+
+                    updateEnemyPanel();
+                }
+
+
+                if (
+                    target.hp <= 0
+                ) {
+
+                    removeEnemy(
+                        target,
+                        true,
+                        false
+                    );
+                }
+            }
+
+
+            bullet.remove();
+
+            return;
+        }
+
+
+        const speed =
+            7 *
+            gameSpeed;
+
+
+        bulletX +=
+            dx /
+            distance *
+            speed;
+
+
+        bulletY +=
+            dy /
+            distance *
+            speed;
+
+
+        bullet.style.left =
+            bulletX + "px";
+
+
+        bullet.style.top =
+            bulletY + "px";
+
+
+        requestAnimationFrame(
+            moveBullet
+        );
+    }
+
+
+    moveBullet();
+}
+
+
+/* =====================================================
+   فاصله Spawn
+===================================================== */
+
+function getSpawnDelay(wave) {
+
+    if (wave === 1)
+        return 4000;
+
+    if (wave === 2)
+        return 2500;
+
+    if (wave === 3)
+        return 1500;
+
+    if (wave === 4)
+        return 1200;
+
+    if (wave === 5)
+        return 1000;
+
+    if (wave === 6)
+        return 900;
+
+    if (wave === 7)
+        return 800;
+
+    if (wave === 8)
+        return 700;
+
+    if (wave === 9)
+        return 500;
+
+    return 0;
+}
+
+
+/* =====================================================
+   Spawn دشمن
+===================================================== */
+
+function spawnWaveEnemy() {
+
+    if (
+        gameOver ||
+        gameWon
+    )
+        return;
+
+
+    if (
+        enemiesSpawned >=
+        enemiesToSpawn
+    ) {
+
+        waveActive =
+            false;
+
+
+        updateEnemyCount();
+
+        return;
+    }
+
+
+    createEnemy();
+
+
+    enemiesSpawned++;
+
+
+    setTimeout(
+        spawnWaveEnemy,
+        getSpawnDelay(
+            currentWave
+        ) /
+        gameSpeed
+    );
+}
+
+
+/* =====================================================
+   ساخت باس
+===================================================== */
+
+function createBoss() {
+
+    const element =
+        document.createElement("div");
+
+
+    element.className =
+        "boss";
+
+
+    element.style.left =
+        "-110px";
+
+
+    element.style.top =
+        "385px";
+
+
+    const healthBar =
+        document.createElement("div");
+
+
+    healthBar.className =
+        "health-bar";
+
+
+    const health =
+        document.createElement("div");
+
+
+    health.className =
+        "health";
+
+
+    healthBar.appendChild(
+        health
+    );
+
+
+    element.appendChild(
+        healthBar
+    );
+
+
+    const eye =
+        document.createElement("div");
+
+
+    eye.className =
+        "boss-eye";
+
+
+    eye.innerText =
+        "👁";
+
+
+    element.appendChild(
+        eye
+    );
+
+
+    world.appendChild(
+        element
+    );
+
+
+    boss = {
+
+        element: element,
+
+        x: -110,
+
+        y: 385,
+
+        maxHp: 5000,
+
+        hp: 5000,
+
+        speed: 0.35,
+
+        damageToPlayer: 5
+
+    };
+
+
+    /*
+    با کلیک روی باس
+    پنل باز می‌شود.
+    */
+
+    element.addEventListener(
+        "click",
+        function(event) {
+
+            event.stopPropagation();
+
+
+            closeTowerPanel();
+
+
+            selectedEnemy =
+                boss;
+
+
+            enemyPanel.style.display =
+                "block";
+
+
+            updateEnemyPanel();
+
+        }
+    );
+
+
+    bossBar.style.display =
+        "block";
+
+
+    bossHp.style.width =
+        "100%";
+
+
+    updateEnemyCount();
+
+
+    moveBoss();
+}
+
+
+/* =====================================================
+   حرکت باس
+===================================================== */
+
+function moveBoss() {
+
+    if (
+        !boss ||
+        gameOver ||
+        gameWon
+    )
+        return;
+
+
+    boss.x +=
+        boss.speed *
+        gameSpeed;
+
+
+    boss.element.style.left =
+        boss.x + "px";
+
+
+    /*
+    HP باس به‌صورت زنده
+    */
+
+    if (
+        selectedEnemy === boss
+    ) {
+
+        updateEnemyPanel();
+    }
+
+
+    if (
+        boss.x >=
+        WORLD_WIDTH
+    ) {
+
+        playerHp -=
+            boss.damageToPlayer;
+
+
+        playerHealth.innerText =
+            "❤️ جان: " +
+            playerHp;
+
+
+        boss.element.remove();
+
+
+        boss = null;
+
+
+        bossBar.style.display =
+            "none";
+
+
+        updateEnemyCount();
+
+
+        if (
+            playerHp <= 0
+        ) {
+
+            loseGame();
+        }
+
+
+        return;
+    }
+
+
+    requestAnimationFrame(
+        moveBoss
+    );
+}
+
+
+/* =====================================================
+   کشتن باس
+===================================================== */
+
+function killBoss() {
+
+    if (!boss)
+        return;
+
+
+    boss.element.remove();
+
+
+    boss = null;
+
+
+    bossBar.style.display =
+        "none";
+
+
+    updateEnemyCount();
+
+
+    closeEnemyPanel();
+
+
+    winGame();
+}
+
+
+/* =====================================================
+   شروع Wave
+===================================================== */
+
+function startWave() {
+
+    if (
+        gameOver ||
+        gameWon
+    )
+        return;
+
+
+    waveStarted =
+        true;
+
+
+    /*
+    Wave 10
+    فقط باس
+    */
+
+    if (
+        currentWave === 10
+    ) {
+
+        waveActive =
+            true;
+
+
+        waveInfo.innerText =
+            "🌊 Wave 10 / 10 👑";
+
+
+        enemiesToSpawn =
+            0;
+
+
+        enemiesSpawned =
+            0;
+
+
+        enemiesRemainingInWave =
+            1;
+
+
+        createBoss();
+
+
+        return;
+    }
+
+
+    waveActive =
+        true;
+
+
+    enemiesSpawned =
+        0;
+
+
+    enemiesToSpawn =
+        getEnemyCount(
+            currentWave
+        );
+
+
+    /*
+    این مقدار از همان اول
+    تعداد کل دشمن‌های Wave است.
+    */
+
+    enemiesRemainingInWave =
+        enemiesToSpawn;
+
+
+    waveInfo.innerText =
+        "🌊 Wave " +
+        currentWave +
+        " / 10";
+
+
+    updateEnemyCount();
+
+
+    spawnWaveEnemy();
+}
+
+
+/* =====================================================
+   رفتن به Wave بعدی
+===================================================== */
+
+setInterval(
+    function() {
+
+        if (
+            gameOver ||
+            gameWon ||
+            !waveStarted ||
+            countdownRunning
+        )
+            return;
+
+
+        /*
+        وقتی تمام دشمن‌های Wave
+        کشته یا رد شده باشند
+        */
+
+        if (
+            !waveActive &&
+            enemiesRemainingInWave === 0 &&
+            enemies.length === 0 &&
+            !boss
+        ) {
+
+            if (
+                currentWave >=
+                MAX_WAVES
+            ) {
+
+                winGame();
+
+            }
+
+            else {
+
+                currentWave++;
+
+                startCountdown();
+            }
+        }
+
+    },
+    500
+);
+
+
+/* =====================================================
+   Countdown
+===================================================== */
+
+function startCountdown() {
+
+    if (
+        countdownRunning ||
+        gameOver ||
+        gameWon
+    )
+        return;
+
+
+    countdownRunning =
+        true;
+
+
+    let timerValue =
+        5;
+
+
+    countdown.innerText =
+        "شروع Wave " +
+        currentWave +
+        ": " +
+        timerValue;
+
+
+    const timer =
+        setInterval(
+            function() {
+
+                if (
+                    gameOver ||
+                    gameWon
+                ) {
+
+                    clearInterval(
+                        timer
+                    );
+
+                    return;
+                }
+
+
+                timerValue--;
+
+
+                countdown.innerText =
+                    "شروع Wave " +
+                    currentWave +
+                    ": " +
+                    timerValue;
+
+
+                if (
+                    timerValue <= 0
+                ) {
+
+                    clearInterval(
+                        timer
+                    );
+
+
+                    countdown.innerText =
+                        "";
+
+
+                    countdownRunning =
+                        false;
+
+
+                    startWave();
+                }
+
+            },
+            1000 /
+            gameSpeed
+        );
+}
+
+
+/* =====================================================
+   سرعت بازی
+===================================================== */
+
+speedButton.addEventListener(
+    "click",
+    function() {
+
+        if (
+            gameSpeed === 1
+        ) {
+
+            gameSpeed = 2;
+
+        }
+
+        else if (
+            gameSpeed === 2
+        ) {
+
+            gameSpeed = 3;
+
+        }
+
+        else {
+
+            gameSpeed = 1;
+
+        }
+
+
+        speedButton.innerText =
+            "⏩ " +
+            gameSpeed +
+            "x";
+    }
+);
+
+
+/* =====================================================
+   دکمه ساخت تاور
+===================================================== */
+
+towerButton.addEventListener(
+    "click",
+    function(event) {
+
+        event.stopPropagation();
+
+
+        if (
+            towers.length >=
+            MAX_TOWERS
+        ) {
+
+            towerMessage.innerText =
+                "اوسکل بیشتر از 12 تا میخوای بزاری؟ بیلاخ👍";
+
+            return;
+        }
+
+
+        if (
+            money <
+            TOWER_COST
+        ) {
+
+            towerMessage.innerText =
+                "سکه کافی نیست 🫠";
+
+            return;
+        }
+
+
+        placingTower =
+            true;
+
+
+        towerMessage.innerText =
+            "یک دایره سفید را انتخاب کن";
+    }
+);
+
+
+/* =====================================================
+   کلیک روی جای تاور
+===================================================== */
+
+world.addEventListener(
+    "click",
+    function(event) {
+
+        if (
+            !placingTower
+        ) {
+
+            closeTowerPanel();
+
+            closeEnemyPanel();
+
+            return;
+        }
+
+
+        const rect =
+            game.getBoundingClientRect();
+
+
+        const clickX =
+            event.clientX -
+            rect.left -
+            cameraX;
+
+
+        const clickY =
+            event.clientY -
+            rect.top;
+
+
+        let closestSlot =
+            null;
+
+
+        let closestDistance =
+            Infinity;
+
+
+        for (
+            const slot of towerSlots
+        ) {
+
+            if (
+                slot.occupied
+            )
+                continue;
+
+
+            const dx =
+                clickX -
+                slot.x;
+
+
+            const dy =
+                clickY -
+                slot.y;
+
+
+            const distance =
+                Math.sqrt(
+                    dx * dx +
+                    dy * dy
+                );
+
+
+            if (
+                distance < 45 &&
+                distance <
+                closestDistance
+            ) {
+
+                closestDistance =
+                    distance;
+
+
+                closestSlot =
+                    slot;
+            }
+        }
+
+
+        if (
+            closestSlot
+        ) {
+
+            if (
+                createTower(
+                    closestSlot
+                )
+            ) {
+
+                placingTower =
+                    false;
+
+
+                towerButton.innerText =
+                    "🗼 ساخت تاور - 50 🪙";
+
+            }
+        }
+    }
+);
+
+
+/* =====================================================
+   دوربین
+===================================================== */
+
+let touching =
+    false;
+
+let lastTouchX =
+    0;
+
+
+game.addEventListener(
+    "touchstart",
+    function(event) {
+
+        touching =
+            true;
+
+
+        lastTouchX =
+            event.touches[0].clientX;
+    }
+);
+
+
+game.addEventListener(
+    "touchmove",
+    function(event) {
+
+        if (!touching)
+            return;
+
+
+        const currentX =
+            event.touches[0].clientX;
+
+
+        const movement =
+            currentX -
+            lastTouchX;
+
+
+        cameraX +=
+            movement;
+
+
+        const maxCamera =
+            Math.max(
+                0,
+                WORLD_WIDTH -
+                window.innerWidth
+            );
+
+
+        if (
+            cameraX > 0
+        )
+            cameraX = 0;
+
+
+        if (
+            cameraX <
+            -maxCamera
+        )
+            cameraX =
+                -maxCamera;
+
+
+        world.style.left =
+            cameraX +
+            "px";
+
+
+        lastTouchX =
+            currentX;
+    }
+);
+
+
+game.addEventListener(
+    "touchend",
+    function() {
+
+        touching =
+            false;
+    }
+);
+
+
+/* =====================================================
+   باخت
+===================================================== */
+
+function loseGame() {
+
+    if (gameOver)
+        return;
+
+
+    gameOver =
+        true;
+
+
+    closeTowerPanel();
+
+    closeEnemyPanel();
+
+
+    loseScreen.style.display =
+        "flex";
+}
+
+
+/* =====================================================
+   برد
+===================================================== */
+
+function winGame() {
+
+    if (gameWon)
+        return;
+
+
+    gameWon =
+        true;
+
+
+    closeTowerPanel();
+
+    closeEnemyPanel();
+
+
+    winScreen.style.display =
+        "flex";
+}
+
+
+/* =====================================================
+   شروع اولیه
+===================================================== */
+
+createTowerSlots();
+
+updateMoney();
+
+updateEnemyCount();
+
+moveEnemies();
+
+updateTowers();
+
+
+/* =====================================================
+   ری‌استارت
+===================================================== */
+
+document
+    .getElementById(
+        "restartButton"
+    )
+    .addEventListener(
+        "click",
+        function() {
+
+            location.reload();
+
+        }
+    );
+
+
+document
+    .getElementById(
+        "restartWinButton"
+    )
+    .addEventListener(
+        "click",
+        function() {
+
+            location.reload();
+
+        }
+    );
+
+</script>
+
+</body>
+  </html>
